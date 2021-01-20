@@ -125,4 +125,23 @@ Azure API Management lets us assemble many small APIs into one big API. It also 
 Microservices can present challenges such as services being presented under disparate addresses, replying in different formats or having different security implementations. API Management addresses this by letting us change microseverice definitions and locations without updating client apps, presenting a single URI for all our services, enforcing consistent formats and security rules.
 
 Access to your managed API is controlled by Subscriptions. Subscriptions provide keys to be attached as \code{ocp-apim-subscription-key} headers in requests.
+
+\section{Connect Your Services Together}
+This section focuses on creating reliable connections between frontends and backends. We look at queues and messaging systems to handle lots of traffic without losing messages. 
+
+\subsection{Choose a messaging model in Azure to loosely connect your services }
+Here we'll compare Storage Queue, Event Grid, Event Hubs and Service Bus, but first we need to know the difference between \textbf{messages} and \textbf{events}. Messages contain raw data, and the sender has some expectation of how the message will be processed. Events are lightweight and may contain a reference to some data, they may have multiple receivers and have no expectation of how a receiver will handle them. Think about the difference between a user uploading a video to YouTube (a message) and the notifications their subscribers receive (an event) alerting them to the upload. Notice also that the event in this example has many subscribers per publisher, this "fan out" pattern is a common feature of events.
+
+\subsubsection{Choose a message-based delivery with queues}
+Here we compare Service Bus Queues, Service Bus Topics and Storage Queues. Storage queues are the cheap and cheerful option, they get the job done but don't have as many features as Service Bus. The biggest advantages of Storage queues is they can exceed 80GB, have an audit trail for messages and let you track a message in the queue. Service Bus queues offer At-Most-Once or First-In-First-Out delivery, transactions, role based access and publication and consumption in batches, however messages can't exceed 256KB and the queue cannot exceed 80GB. Service Bus topics offers delivery to multiple receivers. 
+
+\subsubsection{Choose Azure Event Grid}
+Event Grid can use "almost any Azure resource" as a source for events, you can also write your own. Ultimately Event Grid is useful for consuming "topics" and distributing them to subscribers. Event Grid is easy to use, lets you fan-out an event to many endpoints, will retry delivery for 24 hours and you only pay per transmitted event.
+
+\subsubsection{Choose Azure Event Hubs}
+Event Hubs aimed at big data. It handles very high throughput from lots of publishers. As data comes in to the event hub it is divided into partitions, each of which has it's own set of subscribers. Partitions act as a buffer, they decouple publishers from subscribers. Events can also be sent to Data Lake or blob storage. All publishers are authenticated with tokens. Event Hubs is great if you need to auth lots of publishers, stream events to storage or aggregate events.
+
+\subsection{Implement message-based communication workflows with Azure Service Bus}
+Messages get added to and consumed from queues as UTF8 encoded strings. There's helper libraries available on NuGet at NPM. Topics require a different client class than regular queues, they also support filtering by boolean, SQL or correlation. Correlation filtering is computationally cheaper than SQL filtering.
+
 \end{document}
